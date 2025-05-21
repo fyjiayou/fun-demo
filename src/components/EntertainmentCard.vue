@@ -75,16 +75,19 @@ const getAnswer = async () => {
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-  padding: 24px 18px 18px 18px;
+  padding: 16px 12px 12px 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   height: 100%;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .ent-row {
   display: flex;
-  gap: 18px;
-  margin-bottom: 10px;
+  gap: 12px;
+  margin-bottom: 8px;
   flex: 1;
 }
 .ent-block {
@@ -92,7 +95,7 @@ const getAnswer = async () => {
   background: #f6fafd;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,161,214,0.06);
-  padding: 18px 12px 18px 12px;
+  padding: 12px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -105,21 +108,23 @@ const getAnswer = async () => {
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 8px 18px;
-  font-size: 1em;
+  padding: 6px 14px;
+  font-size: 0.95em;
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   cursor: pointer;
   transition: background 0.2s;
+  white-space: nowrap;
 }
 .ent-btn:hover {
   background: linear-gradient(90deg, #ff5e62 0%, #ff9966 100%);
 }
 .ent-result {
   color: #333;
-  font-size: 1.08em;
+  font-size: 0.95em;
   word-break: break-all;
   margin-top: 4px;
+  width: 100%;
 }
 .ent-result-center {
   text-align: center;
@@ -129,7 +134,26 @@ const getAnswer = async () => {
 .luck-中 { color: #f7b731; font-weight: bold; }
 .answer-en {
   color: #888;
-  font-size: 0.95em;
+  font-size: 0.9em;
   margin-top: 4px;
+}
+
+@media screen and (max-width: 768px) {
+  .entertainment-card {
+    padding: 12px 8px 8px 8px;
+  }
+  .ent-row {
+    gap: 8px;
+  }
+  .ent-block {
+    padding: 8px 6px;
+  }
+  .ent-btn {
+    padding: 6px 12px;
+    font-size: 0.9em;
+  }
+  .ent-result {
+    font-size: 0.9em;
+  }
 }
 </style> 
