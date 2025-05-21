@@ -1,13 +1,11 @@
 <template>
   <div class="app" :class="{ 'dark-mode': isDarkMode }">
-    <GlobalActions v-model="isDarkMode" />
     <router-view></router-view>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import GlobalActions from './components/GlobalActions.vue'
 
 const isDarkMode = ref(false)
 
@@ -95,5 +93,18 @@ onMounted(() => {
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+html, body {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+  min-height: 100vh;
+}
+
+#app {
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  transition: background-color 0.3s, color 0.3s;
 }
 </style> 

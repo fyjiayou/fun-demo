@@ -24,10 +24,40 @@
           type="primary" 
           :icon="Refresh" 
           circle 
-          size="small"
+          size="default"
           class="refresh-btn"
           @click="refreshCurrentTab" 
         />
+        <button
+          type="primary" 
+          :icon="isDarkMode ? 'Sunny' : 'Moon'" 
+          size="default"
+          class="theme-toggle-btn"
+          @click="toggleDarkMode" 
+          :aria-label="isDarkMode ? '切换到浅色模式' : '切换到深色模式'"
+          :title="isDarkMode ? '浅色模式' : '深色模式'"
+        >
+          <span v-if="isDarkMode" class="theme-icon">
+            <!-- 太阳SVG -->
+            <svg width="1.2em" height="1.2em" viewBox="0 0 48 48" fill="none">
+              <path d="M24 37C31.1797 37 37 31.1797 37 24C37 16.8203 31.1797 11 24 11C16.8203 11 11 16.8203 11 24C11 31.1797 16.8203 37 24 37Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path>
+              <path d="M24 6C25.3807 6 26.5 4.88071 26.5 3.5C26.5 2.11929 25.3807 1 24 1C22.6193 1 21.5 2.11929 21.5 3.5C21.5 4.88071 22.6193 6 24 6Z" fill="currentColor"></path>
+              <path d="M38.5 12C39.8807 12 41 10.8807 41 9.5C41 8.11929 39.8807 7 38.5 7C37.1193 7 36 8.11929 36 9.5C36 10.8807 37.1193 12 38.5 12Z" fill="currentColor"></path>
+              <path d="M44.5 26.5C45.8807 26.5 47 25.3807 47 24C47 22.6193 45.8807 21.5 44.5 21.5C43.1193 21.5 42 22.6193 42 24C42 25.3807 43.1193 26.5 44.5 26.5Z" fill="currentColor"></path>
+              <path d="M38.5 41C39.8807 41 41 39.8807 41 38.5C41 37.1193 39.8807 36 38.5 36C37.1193 36 36 37.1193 36 38.5C36 39.8807 37.1193 41 38.5 41Z" fill="currentColor"></path>
+              <path d="M24 47C25.3807 47 26.5 45.8807 26.5 44.5C26.5 43.1193 25.3807 42 24 42C22.6193 42 21.5 43.1193 21.5 44.5C21.5 45.8807 22.6193 47 24 47Z" fill="currentColor"></path>
+              <path d="M9.5 41C10.8807 41 12 39.8807 12 38.5C12 37.1193 10.8807 36 9.5 36C8.11929 36 7 37.1193 7 38.5C7 39.8807 8.11929 41 9.5 41Z" fill="currentColor"></path>
+              <path d="M3.5 26.5C4.88071 26.5 6 25.3807 6 24C6 22.6193 4.88071 21.5 3.5 21.5C2.11929 21.5 1 22.6193 1 24C1 25.3807 2.1193 26.5 3.5 26.5Z" fill="currentColor"></path>
+              <path d="M9.5 12C10.8807 12 12 10.8807 12 9.5C12 8.11929 10.8807 7 9.5 7C8.11929 7 7 8.11929 7 9.5C7 10.8807 8.11929 12 9.5 12Z" fill="currentColor"></path>
+            </svg>
+          </span>
+          <span v-else class="theme-icon">
+            <!-- 月亮SVG -->
+            <svg width="1.2em" height="1.2em" viewBox="0 0 48 48" fill="none">
+              <path d="M28.0527 4.41085C22.5828 5.83695 18.5455 10.8106 18.5455 16.7273C18.5455 23.7564 24.2436 29.4545 31.2727 29.4545C37.1894 29.4545 42.1631 25.4172 43.5891 19.9473C43.8585 21.256 44 22.6115 44 24C44 35.0457 35.0457 44 24 44C12.9543 44 4 35.0457 4 24C4 12.9543 12.9543 4 24 4C25.3885 4 26.744 4.14149 28.0527 4.41085Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path>
+            </svg>
+          </span>
+        </button>
       </div>
     </div>
     <!-- 内容区 -->
@@ -89,8 +119,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { Refresh } from '@element-plus/icons-vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { Refresh, Sunny, Moon } from '@element-plus/icons-vue'
 import HotListItem from '../components/HotListItem.vue'
 import SixtySeconds from '../components/SixtySeconds.vue'
 import TodayInHistory from '../components/TodayInHistory.vue'
@@ -130,6 +160,7 @@ const showBackTop = ref(false)
 const backTopActive = ref(false)
 const currentTime = ref(new Date())
 const isMobile = ref(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+const isDarkMode = ref(false)
 
 let timeUpdateInterval
 
@@ -292,7 +323,25 @@ const cards = [
   { platform: 'entertainment', title: '消遣娱乐', icon: '🎲', component: EntertainmentCard, list: undefined },
 ]
 
+const toggleDarkMode = () => {
+  isDarkMode.value = !isDarkMode.value
+  document.documentElement.classList.toggle('dark-mode', isDarkMode.value)
+  localStorage.setItem('darkMode', isDarkMode.value.toString())
+}
+
 onMounted(() => {
+  // Check for saved dark mode preference
+  const savedDarkMode = localStorage.getItem('darkMode')
+  if (savedDarkMode !== null) {
+    isDarkMode.value = savedDarkMode === 'true'
+    document.documentElement.classList.toggle('dark-mode', isDarkMode.value)
+  } else {
+    // Check system preference
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    isDarkMode.value = prefersDark
+    document.documentElement.classList.toggle('dark-mode', prefersDark)
+  }
+
   fetchTodayInHistory()
   fetchWeiboHot()
   fetchToutiaoHot()
@@ -392,7 +441,7 @@ const formatUpdateTime = (updateTime) => {
   color: var(--text-color);
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   position: relative;
 }
 
@@ -416,9 +465,8 @@ const formatUpdateTime = (updateTime) => {
 
 .header-right {
   display: flex;
-  align-items: flex-start;
-  width: 25%;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
 }
 
 .logo {
@@ -470,14 +518,18 @@ const formatUpdateTime = (updateTime) => {
 }
 
 .refresh-btn {
-  background: #3498db;
-  border-color: #3498db;
+  width: 40px !important;
+  height: 40px !important;
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-color) !important;
   transition: all 0.3s ease;
 }
 
 .refresh-btn:hover {
-  background: #2980b9;
-  border-color: #2980b9;
+  background: var(--card-bg) !important;
+  border-color: #409EFF !important;
+  color: #409EFF !important;
   transform: rotate(180deg);
 }
 
@@ -843,5 +895,40 @@ const formatUpdateTime = (updateTime) => {
   background: transparent !important;
   box-shadow: none !important;
   outline: none !important;
+}
+
+.theme-toggle-btn {
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 50% !important;
+  color: var(--text-color) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--card-bg) !important;
+  border-color: #409EFF !important;
+  color: #409EFF !important;
+}
+
+.theme-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:deep(.el-button.is-circle) {
+  padding: 0 !important;
+}
+
+:deep(.el-button .el-icon) {
+  font-size: 20px !important;
 }
 </style> 
