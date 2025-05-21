@@ -350,6 +350,29 @@ const formatUpdateTime = (updateTime) => {
 </script>
 
 <style scoped>
+:root {
+  --bg-color: #fafafc;
+  --main-bg: #fff;
+  --card-bg: #fff;
+  --list-bg: #fff;
+  --text-color: #333;
+  --card-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  --border-color: #ebeef5;
+  --divider-color: #ebeef5;
+  --scrollbar-thumb: #e4e7ed;
+}
+.dark-mode {
+  --bg-color: #181a1b;
+  --main-bg: #23272e;
+  --card-bg: #222;
+  --list-bg: #282c34;
+  --text-color: #f5f5f7;
+  --card-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  --border-color: #3335;
+  --divider-color: #3332;
+  --scrollbar-thumb: #444a;
+}
+
 .hot-list-container {
   max-width: 1700px;
   margin: 20px auto;
@@ -357,16 +380,18 @@ const formatUpdateTime = (updateTime) => {
   min-height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
-  background: #FAFAFC;
+  background: var(--bg-color);
+  color: var(--text-color);
 }
 
 .header {
   text-align: center;
   margin-bottom: 30px;
   padding: 20px;
-  background: #FAFAFC;
+  background: var(--main-bg);
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--card-shadow);
+  color: var(--text-color);
 }
 
 .title {
@@ -401,17 +426,18 @@ const formatUpdateTime = (updateTime) => {
   width: 380px;
   max-width: 380px;
   height: 480px;
-  background: #fff;
+  background: var(--card-bg);
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--card-shadow);
   margin-bottom: 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   position: relative;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--border-color);
   transition: all 0.3s ease;
   overflow: hidden;
+  color: var(--text-color);
 }
 
 .tab-page:hover {
@@ -427,9 +453,10 @@ const formatUpdateTime = (updateTime) => {
   position: sticky;
   top: 0;
   z-index: 99;
-  background: #fff;
+  background: var(--card-bg);
   padding: 16px;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--divider-color);
+  color: var(--text-color);
 }
 
 .tab-page-logo {
@@ -441,7 +468,7 @@ const formatUpdateTime = (updateTime) => {
 .tab-page-title {
   font-size: 1.1em;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-color);
   flex-shrink: 0;
 }
 
@@ -450,7 +477,9 @@ const formatUpdateTime = (updateTime) => {
   overflow-y: auto;
   padding: 12px 16px;
   scrollbar-width: thin;
-  scrollbar-color: #e4e7ed transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+  background: transparent;
+  color: var(--text-color);
 }
 
 .tab-page-content::-webkit-scrollbar {
@@ -462,14 +491,14 @@ const formatUpdateTime = (updateTime) => {
 }
 
 .tab-page-content::-webkit-scrollbar-thumb {
-  background-color: #e4e7ed;
+  background-color: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 
 .tab-page-footer {
   padding: 12px 18px;
-  border-top: 1px solid #f0f0f0;
-  background: #fff;
+  border-top: 1px solid var(--divider-color);
+  background: var(--card-bg);
   border-radius: 0 0 16px 16px;
 }
 
@@ -523,7 +552,7 @@ const formatUpdateTime = (updateTime) => {
 }
 
 :deep(.el-tabs__item.is-active) {
-  background: #fff !important;
+  background: var(--card-bg) !important;
   color: #00a1d6 !important;
   font-weight: 700;
   box-shadow: 0 2px 8px rgba(0,161,214,0.08);
@@ -554,7 +583,7 @@ const formatUpdateTime = (updateTime) => {
 
 :deep(.el-tabs__content) {
   padding: 20px;
-  background: #fff;
+  background: var(--card-bg);
 }
 
 :deep(.el-button--primary) {
@@ -571,70 +600,24 @@ const formatUpdateTime = (updateTime) => {
   .hot-list-container {
     padding: 0 8px;
   }
-
   .header {
     padding: 16px;
     margin-bottom: 20px;
   }
-
   .title {
     font-size: 2em;
   }
-
   .subtitle {
     font-size: 1em;
   }
-
   .tab-pages {
     padding: 12px;
     gap: 12px;
   }
-
   .tab-page {
     width: 100%;
     max-width: 100%;
     height: 480px;
-  }
-
-  .back-top-btn {
-    position: fixed;
-    right: 18px;
-    bottom: 32px;
-    z-index: 9999;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 6px 24px rgba(79, 140, 255, 0.13);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    outline: none !important;
-    box-shadow: none;
-    -webkit-tap-highlight-color: transparent;
-    cursor: pointer;
-    transition: box-shadow 0.2s, transform 0.15s;
-    opacity: 0.98;
-    padding: 0;
-  }
-  .back-top-btn:focus {
-    outline: none !important;
-    box-shadow: none !important;
-  }
-  .back-top-btn:hover {
-    box-shadow: 0 2px 8px rgba(160, 132, 238, 0.18);
-    transform: scale(1.08);
-  }
-  .back-top-btn:active svg {
-    stroke: #ff3b30;
-  }
-  .back-top-btn svg {
-    stroke: #222;
-    transition: stroke 0.18s;
-    width: 22px;
-    height: 22px;
-    display: block;
   }
 }
 

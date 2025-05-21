@@ -72,9 +72,9 @@ const getAnswer = async () => {
 
 <style scoped>
 .entertainment-card {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  box-shadow: var(--card-shadow);
   padding: 16px 12px 12px 12px;
   display: flex;
   flex-direction: column;
@@ -92,7 +92,7 @@ const getAnswer = async () => {
 }
 .ent-block {
   flex: 1;
-  background: #f6fafd;
+  background: var(--list-item-bg);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,161,214,0.06);
   padding: 12px 8px;
@@ -125,7 +125,7 @@ const getAnswer = async () => {
   background: linear-gradient(90deg, #ff5e62 0%, #ff9966 100%);
 }
 .ent-result {
-  color: #333;
+  color: var(--text-color);
   font-size: 0.95em;
   word-break: break-all;
   margin-top: 4px;

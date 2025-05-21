@@ -21,9 +21,9 @@ defineProps({
 
 <style scoped>
 .today-history-card {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  box-shadow: var(--card-shadow);
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -48,10 +48,10 @@ defineProps({
   transition: all 0.2s ease;
   position: relative;
   margin-bottom: 4px;
-  background: #fff;
+  background: var(--list-item-bg);
 }
 .hot-list-item:hover {
-  background: #f5f7fa;
+  background: var(--list-item-hover-bg);
   transform: translateX(2px);
 }
 .rank {
@@ -90,7 +90,7 @@ defineProps({
 }
 .title {
   font-size: 14px;
-  color: #2c3e50;
+  color: var(--title-color);
   margin: 0;
   line-height: 1.4;
   overflow: hidden;

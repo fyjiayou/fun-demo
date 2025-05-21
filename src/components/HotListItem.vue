@@ -40,6 +40,23 @@ const handleClick = (item) => {
 </script>
 
 <style scoped>
+:root {
+  --list-item-bg: #fff;
+  --list-item-hover-bg: #f5f7fa;
+  --rank-bg: #ff6b6b;
+  --rank-bg-normal: #f5f7fa;
+  --rank-color-normal: #909399;
+  --title-color: #2c3e50;
+}
+.dark-mode {
+  --list-item-bg: #282c34;
+  --list-item-hover-bg: #23272e;
+  --rank-bg: #ff6b6b;
+  --rank-bg-normal: #23272e;
+  --rank-color-normal: #b0b3b8;
+  --title-color: #f5f5f7;
+}
+
 .hot-list {
   padding: 8px;
 }
@@ -54,11 +71,11 @@ const handleClick = (item) => {
   transition: all 0.2s ease;
   position: relative;
   margin-bottom: 4px;
-  background: #fff;
+  background: var(--list-item-bg);
 }
 
 .hot-list-item:hover {
-  background: #f5f7fa;
+  background: var(--list-item-hover-bg);
   transform: translateX(2px);
 }
 
@@ -103,7 +120,7 @@ const handleClick = (item) => {
 
 .title {
   font-size: 14px;
-  color: #2c3e50;
+  color: var(--title-color);
   margin: 0;
   line-height: 1.4;
   overflow: hidden;

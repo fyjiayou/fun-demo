@@ -16,9 +16,9 @@ defineProps({
 
 <style scoped>
 .sixty-seconds-card {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  box-shadow: var(--card-shadow);
   padding: 24px 18px 18px 18px;
   width: 100%;
   margin: 0;
@@ -35,12 +35,12 @@ defineProps({
   gap: 10px;
 }
 .sixty-news li {
-  background: #f6fafd;
+  background: var(--list-item-bg);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,161,214,0.06);
   padding: 14px 12px 14px 12px;
   font-size: 1.08em;
-  color: #333;
+  color: var(--text-color);
   line-height: 1.8;
   display: flex;
   align-items: flex-start;
