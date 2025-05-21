@@ -39,19 +39,7 @@
           <span class="tab-page-title">{{ card.title }}</span>
           <template v-if="card.platform === 'todayInHistory'">
             <span class="today-date-right">
-              {{
-                (() => {
-                  if (todayInHistoryData && todayInHistoryData.date) {
-                    const match = todayInHistoryData.date.match(/(\d{1,2})月(\d{1,2})日/);
-                    if (match) {
-                      const m = match[1].padStart(2, '0');
-                      const d = match[2].padStart(2, '0');
-                      return `${m}-${d}`;
-                    }
-                  }
-                  return '';
-                })()
-              }}
+              {{ todayInHistoryData?.type || '' }}
             </span>
           </template>
           <template v-else-if="['weibo', 'bilibili', 'zhihu', 'douyin', 'toutiao'].includes(card.platform)">
@@ -99,7 +87,7 @@ import HotListItem from '../components/HotListItem.vue'
 import SixtySeconds from '../components/SixtySeconds.vue'
 import TodayInHistory from '../components/TodayInHistory.vue'
 import EntertainmentCard from '../components/EntertainmentCard.vue'
-import { getBilibiliHot, getWeiboHot, getZhihuHot, getDouyinHot, getToutiaoHot, getSixtySeconds } from '../api/hotList'
+import { getBilibiliHot, getWeiboHot, getZhihuHot, getDouyinHot, getToutiaoHot, getSixtySeconds, getTodayInHistory } from '../api/hotList'
 import { ElMessage } from 'element-plus'
 
 const loading = ref(false)
@@ -124,7 +112,10 @@ const toutiaoList = ref({
   updateTime: null
 })
 const sixtySecondsData = ref(null)
-const todayInHistoryData = ref(null)
+const todayInHistoryData = ref({
+  type: '',
+  list: []
+})
 const lastUpdateTime = ref(new Date().toLocaleString())
 const hitokoto = ref('')
 const showBackTop = ref(false)
@@ -146,12 +137,11 @@ const fetchHitokoto = async () => {
 
 const fetchTodayInHistory = async () => {
   try {
-    const res = await fetch('https://60s-api.viki.moe/v2/today_in_history')
-    const json = await res.json()
-    todayInHistoryData.value = json.data
+    const data = await getTodayInHistory()
+    todayInHistoryData.value = data
   } catch (error) {
-    console.error('获取历史上的今天失败:', error)
-    ElMessage.error('获取历史上的今天失败')
+    console.error('获取历史上的今日失败:', error)
+    ElMessage.error('获取历史上的今日失败')
   }
 }
 
@@ -242,7 +232,7 @@ const refreshCard = async (platform) => {
         const bilibiliData = await getBilibiliHot()
         bilibiliList.value = bilibiliData
         ElMessage({
-          message: 'B站热搜刷新成功',
+          message: '哔哩哔哩热榜刷新成功',
           type: 'success',
           duration: 1000
         })
@@ -260,7 +250,7 @@ const refreshCard = async (platform) => {
         const douyinData = await getDouyinHot()
         douyinList.value = douyinData
         ElMessage({
-          message: '抖音热搜刷新成功',
+          message: '抖音热榜刷新成功',
           type: 'success',
           duration: 1000
         })
@@ -269,7 +259,7 @@ const refreshCard = async (platform) => {
         const toutiaoData = await getToutiaoHot()
         toutiaoList.value = toutiaoData
         ElMessage({
-          message: '头条热搜刷新成功',
+          message: '头条热榜刷新成功',
           type: 'success',
           duration: 1000
         })
@@ -286,10 +276,10 @@ const refreshCard = async (platform) => {
 const cards = [
   { platform: 'todayInHistory', title: '历史上的今天', icon: '', component: TodayInHistory, list: todayInHistoryData },
   { platform: 'weibo', title: '微博热搜', icon: '/weibo.ico', component: HotListItem, list: weiboList },
-  { platform: 'toutiao', title: '头条热搜', icon: '/toutiao.ico', component: HotListItem, list: toutiaoList },
+  { platform: 'toutiao', title: '头条热榜', icon: '/toutiao.ico', component: HotListItem, list: toutiaoList },
   { platform: 'zhihu', title: '知乎热榜', icon: '/zhihu.ico', component: HotListItem, list: zhihuList },
-  { platform: 'douyin', title: '抖音热搜', icon: '/douyin.png', component: HotListItem, list: douyinList },
-  { platform: 'bilibili', title: 'B站热搜', icon: '/bilibili.ico', component: HotListItem, list: bilibiliList },
+  { platform: 'douyin', title: '抖音热榜', icon: '/douyin.png', component: HotListItem, list: douyinList },
+  { platform: 'bilibili', title: '哔哩哔哩热榜', icon: '/bilibili.ico', component: HotListItem, list: bilibiliList },
   { platform: 'sixtySeconds', title: '60秒读懂世界', icon: '/sixty.ico', component: SixtySeconds, list: sixtySecondsData },
   { platform: 'entertainment', title: '消遣娱乐', icon: '🎲', component: EntertainmentCard, list: undefined },
 ]

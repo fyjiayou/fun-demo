@@ -20,7 +20,7 @@ export const getBilibiliHot = async () => {
       updateTime: response.data.updateTime || new Date().toISOString()
     }
   } catch (error) {
-    console.error('获取B站热搜失败:', error)
+    console.error('哔哩哔哩热榜:', error)
     return { list: [], updateTime: null }
   }
 }
@@ -82,7 +82,7 @@ export const getDouyinHot = async () => {
       updateTime: response.data.updateTime || new Date().toISOString()
     }
   } catch (error) {
-    console.error('获取抖音热搜失败:', error)
+    console.error('获取抖音热榜失败:', error)
     return { list: [], updateTime: null }
   }
 }
@@ -102,7 +102,7 @@ export const getToutiaoHot = async () => {
       updateTime: response.data.updateTime || new Date().toISOString()
     }
   } catch (error) {
-    console.error('获取头条热搜失败:', error)
+    console.error('获取头条热榜失败:', error)
     return { list: [], updateTime: null }
   }
 }
@@ -120,6 +120,27 @@ export const getMaoyanHot = async () => {
     }))
   } catch (error) {
     console.error('获取猫眼票房失败:', error)
+    return []
+  }
+}
+
+// 历史上的今天
+export const getTodayInHistory = async () => {
+  try {
+    const response = await request.get('/history?cache=true')
+    // 处理返回的数据，确保返回格式统一
+    return {
+      list: response.data.data.map((item) => ({
+        title: item.title,
+        hot: item.box_office,
+        id: item.id,
+        url: item.url,
+        mobileUrl: item.mobileUrl
+      })),
+      type: response.data.type
+    }
+  } catch (error) {
+    console.error('获取历史上的今日失败:', error)
     return []
   }
 }

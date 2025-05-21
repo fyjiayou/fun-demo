@@ -1,11 +1,11 @@
 <template>
-  <div class="today-history-card" v-if="data && data.items && data.items.length">
+  <div class="today-history-card" v-if="data && data.list && data.list.length">
     <ul class="today-history-list">
-      <li v-for="(item, idx) in data.items" :key="idx" class="hot-list-item">
+      <li v-for="(item, idx) in data.list" :key="idx" class="hot-list-item">
         <div class="rank" :class="{ 'top-three': idx < 3 }">{{ idx + 1 }}</div>
         <div class="content">
           <div class="title-wrapper">
-            <a :href="item.link" class="title" target="_blank" rel="noopener">{{ item.title }}</a>
+            <a :href="item.url" class="title" target="_blank" rel="noopener">{{ item.title }}</a>
           </div>
         </div>
       </li>
