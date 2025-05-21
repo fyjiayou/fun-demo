@@ -115,6 +115,11 @@ const getAnswer = async () => {
   cursor: pointer;
   transition: background 0.2s;
   white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
 }
 .ent-btn:hover {
   background: linear-gradient(90deg, #ff5e62 0%, #ff9966 100%);

@@ -823,4 +823,11 @@ const formatUpdateTime = (updateTime) => {
   padding-left: 12px;
   border-left: 1px solid #eee;
 }
+
+:deep(.refresh-btn.el-button:focus),
+:deep(.refresh-btn.el-button:active) {
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
 </style> 
