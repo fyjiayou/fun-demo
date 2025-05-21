@@ -3,9 +3,9 @@
     <div class="header">
       <h1 class="title">实时热搜榜</h1>
       <div class="hitokoto" v-if="hitokoto">
-        <span class="quote-mark">“</span>
+        <span class="quote-mark">"</span>
         <span class="hitokoto-text">{{ hitokoto }}</span>
-        <span class="quote-mark">”</span>
+        <span class="quote-mark">"</span>
       </div>
       <div class="update-info">
         <div class="update-time">
@@ -37,25 +37,51 @@
           </template>
           <img v-else :src="card.icon" class="tab-page-logo" :alt="card.title" />
           <span class="tab-page-title">{{ card.title }}</span>
-          <span v-if="card.platform === 'todayInHistory'" class="today-date-right">
-            {{
-              (() => {
-                if (todayInHistoryData && todayInHistoryData.date) {
-                  const match = todayInHistoryData.date.match(/(\d{1,2})月(\d{1,2})日/);
-                  if (match) {
-                    const m = match[1].padStart(2, '0');
-                    const d = match[2].padStart(2, '0');
-                    return `${m}-${d}`;
+          <template v-if="card.platform === 'todayInHistory'">
+            <span class="today-date-right">
+              {{
+                (() => {
+                  if (todayInHistoryData && todayInHistoryData.date) {
+                    const match = todayInHistoryData.date.match(/(\d{1,2})月(\d{1,2})日/);
+                    if (match) {
+                      const m = match[1].padStart(2, '0');
+                      const d = match[2].padStart(2, '0');
+                      return `${m}-${d}`;
+                    }
                   }
-                }
-                return '';
-              })()
-            }}
-          </span>
+                  return '';
+                })()
+              }}
+            </span>
+          </template>
+          <template v-else-if="['weibo', 'bilibili', 'zhihu', 'douyin', 'toutiao'].includes(card.platform)">
+            <div class="card-header-actions">
+              <el-button
+                type="primary"
+                :icon="Refresh"
+                circle
+                size="small"
+                class="card-refresh-btn"
+                @click="refreshCard(card.platform)"
+              />
+              <div class="update-time-info">
+                <i class="el-icon-time"></i>
+                {{ card.list.value.updateTime ? formatUpdateTime(card.list.value.updateTime) : '未知' }}
+              </div>
+            </div>
+          </template>
         </div>
-        <TodayInHistory v-if="card.platform === 'todayInHistory'" :data="todayInHistoryData" />
-        <component v-else-if="card.component" :is="card.component" :list="card.list?.value" :platform="card.platform" />
-        <sixty-seconds v-else-if="card.platform === 'sixtySeconds' && sixtySecondsData" :data="sixtySecondsData" />
+        <div class="tab-page-content">
+          <TodayInHistory v-if="card.platform === 'todayInHistory'" :data="todayInHistoryData" />
+          <SixtySeconds v-else-if="card.platform === 'sixtySeconds'" :data="sixtySecondsData" />
+          <component 
+            v-else-if="card.component" 
+            :is="card.component" 
+            :list="card.list?.value?.list" 
+            :platform="card.platform"
+            :is-mobile="isMobile"
+          />
+        </div>
       </div>
     </div>
     <template v-if="showBackTop">
@@ -77,17 +103,36 @@ import { getBilibiliHot, getWeiboHot, getZhihuHot, getDouyinHot, getToutiaoHot, 
 import { ElMessage } from 'element-plus'
 
 const loading = ref(false)
-const bilibiliList = ref([])
-const weiboList = ref([])
-const zhihuList = ref([])
-const douyinList = ref([])
-const toutiaoList = ref([])
+const bilibiliList = ref({
+  list: [],
+  updateTime: null
+})
+const weiboList = ref({
+  list: [],
+  updateTime: null
+})
+const zhihuList = ref({
+  list: [],
+  updateTime: null
+})
+const douyinList = ref({
+  list: [],
+  updateTime: null
+})
+const toutiaoList = ref({
+  list: [],
+  updateTime: null
+})
 const sixtySecondsData = ref(null)
 const todayInHistoryData = ref(null)
 const lastUpdateTime = ref(new Date().toLocaleString())
 const hitokoto = ref('')
 const showBackTop = ref(false)
 const backTopActive = ref(false)
+const currentTime = ref(new Date())
+const isMobile = ref(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+
+let timeUpdateInterval
 
 const fetchHitokoto = async () => {
   try {
@@ -125,84 +170,117 @@ const fetchSixtySeconds = async () => {
 }
 
 const fetchBilibiliHot = async () => {
-  loading.value = true
-  try {
-    const data = await getBilibiliHot()
-    bilibiliList.value = data
-    lastUpdateTime.value = new Date().toLocaleString()
-  } catch (error) {
-    console.error('获取B站热搜失败:', error)
-    ElMessage.error('获取B站热搜失败')
-  } finally {
-    loading.value = false
-  }
+  const data = await getBilibiliHot()
+  bilibiliList.value = data
 }
 
 const fetchWeiboHot = async () => {
-  loading.value = true
-  try {
-    const data = await getWeiboHot()
-    weiboList.value = data
-    lastUpdateTime.value = new Date().toLocaleString()
-  } catch (error) {
-    console.error('获取微博热搜失败:', error)
-    ElMessage.error('获取微博热搜失败')
-  } finally {
-    loading.value = false
-  }
+  const data = await getWeiboHot()
+  weiboList.value = data
 }
 
 const fetchZhihuHot = async () => {
-  loading.value = true
-  try {
-    const data = await getZhihuHot()
-    zhihuList.value = data
-    lastUpdateTime.value = new Date().toLocaleString()
-  } catch (error) {
-    console.error('获取知乎热榜失败:', error)
-    ElMessage.error('获取知乎热榜失败')
-  } finally {
-    loading.value = false
-  }
+  const data = await getZhihuHot()
+  zhihuList.value = data
 }
 
 const fetchDouyinHot = async () => {
-  loading.value = true
-  try {
-    const data = await getDouyinHot()
-    douyinList.value = data
-    lastUpdateTime.value = new Date().toLocaleString()
-  } catch (error) {
-    console.error('获取抖音热搜失败:', error)
-    ElMessage.error('获取抖音热搜失败')
-  } finally {
-    loading.value = false
-  }
+  const data = await getDouyinHot()
+  douyinList.value = data
 }
 
 const fetchToutiaoHot = async () => {
+  const data = await getToutiaoHot()
+  toutiaoList.value = data
+}
+
+const refreshCurrentTab = async () => {
+  if (loading.value) return
+  
   loading.value = true
   try {
-    const data = await getToutiaoHot()
-    toutiaoList.value = data
+    await Promise.all([
+      fetchTodayInHistory(),
+      fetchWeiboHot(),
+      fetchToutiaoHot(),
+      fetchZhihuHot(),
+      fetchDouyinHot(),
+      fetchBilibiliHot(),
+      fetchSixtySeconds(),
+      fetchHitokoto()
+    ])
     lastUpdateTime.value = new Date().toLocaleString()
+    ElMessage({
+      message: '全部数据刷新成功',
+      type: 'success',
+      duration: 1000
+    })
   } catch (error) {
-    console.error('获取头条热搜失败:', error)
-    ElMessage.error('获取头条热搜失败')
+    console.error('刷新数据失败:', error)
+    ElMessage.error('刷新数据失败')
   } finally {
     loading.value = false
   }
 }
 
-const refreshCurrentTab = () => {
-  fetchTodayInHistory()
-  fetchWeiboHot()
-  fetchToutiaoHot()
-  fetchZhihuHot()
-  fetchDouyinHot()
-  fetchBilibiliHot()
-  fetchSixtySeconds()
-  fetchHitokoto()
+const refreshCard = async (platform) => {
+  if (loading.value) return
+  
+  loading.value = true
+  try {
+    switch (platform) {
+      case 'weibo':
+        const weiboData = await getWeiboHot()
+        weiboList.value = weiboData
+        ElMessage({
+          message: '微博热搜刷新成功',
+          type: 'success',
+          duration: 1000
+        })
+        break
+      case 'bilibili':
+        const bilibiliData = await getBilibiliHot()
+        bilibiliList.value = bilibiliData
+        ElMessage({
+          message: 'B站热搜刷新成功',
+          type: 'success',
+          duration: 1000
+        })
+        break
+      case 'zhihu':
+        const zhihuData = await getZhihuHot()
+        zhihuList.value = zhihuData
+        ElMessage({
+          message: '知乎热榜刷新成功',
+          type: 'success',
+          duration: 1000
+        })
+        break
+      case 'douyin':
+        const douyinData = await getDouyinHot()
+        douyinList.value = douyinData
+        ElMessage({
+          message: '抖音热搜刷新成功',
+          type: 'success',
+          duration: 1000
+        })
+        break
+      case 'toutiao':
+        const toutiaoData = await getToutiaoHot()
+        toutiaoList.value = toutiaoData
+        ElMessage({
+          message: '头条热搜刷新成功',
+          type: 'success',
+          duration: 1000
+        })
+        break
+    }
+  } catch (error) {
+    console.error(`获取${platform}数据失败:`, error)
+    ElMessage.error(`获取${platform}数据失败`)
+  } finally {
+    loading.value = false
+  }
 }
 
 const cards = [
@@ -212,7 +290,7 @@ const cards = [
   { platform: 'zhihu', title: '知乎热榜', icon: '/zhihu.ico', component: HotListItem, list: zhihuList },
   { platform: 'douyin', title: '抖音热搜', icon: '/douyin.png', component: HotListItem, list: douyinList },
   { platform: 'bilibili', title: 'B站热搜', icon: '/bilibili.ico', component: HotListItem, list: bilibiliList },
-  { platform: 'sixtySeconds', title: '60秒读懂世界', icon: '/sixty.ico', component: null, list: undefined },
+  { platform: 'sixtySeconds', title: '60秒读懂世界', icon: '/sixty.ico', component: SixtySeconds, list: sixtySecondsData },
   { platform: 'entertainment', title: '消遣娱乐', icon: '🎲', component: EntertainmentCard, list: undefined },
 ]
 
@@ -225,14 +303,49 @@ onMounted(() => {
   fetchBilibiliHot()
   fetchSixtySeconds()
   fetchHitokoto()
+
+  timeUpdateInterval = setInterval(() => {
+    currentTime.value = new Date()
+  }, 60000)
 })
 
 onUnmounted(() => {
+  if (timeUpdateInterval) {
+    clearInterval(timeUpdateInterval)
+  }
 })
 
 function scrollToTop() {
   backTopActive.value = true
   window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+const formatUpdateTime = (updateTime) => {
+  if (!updateTime) return '未知'
+  
+  const now = currentTime.value
+  const updateDate = new Date(updateTime)
+  
+  if (isNaN(updateDate.getTime())) return '未知'
+  
+  const diffMilliseconds = now - updateDate
+  const diffMinutes = Math.floor(diffMilliseconds / (1000 * 60))
+  
+  if (diffMinutes < 1) return '刚刚'
+  if (diffMinutes < 60) return `${diffMinutes}分钟前`
+  
+  const diffHours = Math.floor(diffMinutes / 60)
+  if (diffHours < 24) return `${diffHours}小时前`
+  
+  const diffDays = Math.floor(diffHours / 24)
+  if (diffDays < 30) return `${diffDays}天前`
+  
+  return updateDate.toLocaleString('zh-CN', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 </script>
 
@@ -244,25 +357,26 @@ function scrollToTop() {
   min-height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
-  background: #f0f7ff;
+  background: #FAFAFC;
 }
 
 .header {
   text-align: center;
   margin-bottom: 30px;
+  padding: 20px;
+  background: #FAFAFC;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .title {
   font-size: 2.8em;
-  color: #303133;
   margin: 0;
   background: linear-gradient(45deg, #2c3e50, #3498db);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 700;
   letter-spacing: 2px;
-  text-shadow: 2px 2px 4px rgba(44, 62, 80, 0.1);
-  position: relative;
 }
 
 .subtitle {
@@ -276,49 +390,95 @@ function scrollToTop() {
 .tab-pages {
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
+  gap: 20px;
   justify-content: center;
   width: 100%;
-  padding-bottom: 12px;
+  padding: 20px;
+  background: transparent;
 }
 
 .tab-page {
-  width: 500px;
-  max-width: 500px;
-  height: 600px;
+  width: 380px;
+  max-width: 380px;
+  height: 480px;
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  overflow-y: auto;
-  padding: 0 18px 18px 18px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   margin-bottom: 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  position: relative;
+  border: 1px solid #ebeef5;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.tab-page:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .tab-page-header {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
   position: sticky;
   top: 0;
   z-index: 99;
   background: #fff;
-  padding: 24px 0 8px 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 16px;
+  border-bottom: 1px solid #ebeef5;
 }
 
 .tab-page-logo {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
 }
 
 .tab-page-title {
-  font-size: 1.25em;
-  font-weight: 700;
-  color: #222;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #2c3e50;
+  flex-shrink: 0;
+}
+
+.tab-page-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  scrollbar-width: thin;
+  scrollbar-color: #e4e7ed transparent;
+}
+
+.tab-page-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.tab-page-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tab-page-content::-webkit-scrollbar-thumb {
+  background-color: #e4e7ed;
+  border-radius: 4px;
+}
+
+.tab-page-footer {
+  padding: 12px 18px;
+  border-top: 1px solid #f0f0f0;
+  background: #fff;
+  border-radius: 0 0 16px 16px;
+}
+
+.update-time-info {
+  color: #909399;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .footer {
@@ -409,40 +569,31 @@ function scrollToTop() {
 
 @media (max-width: 900px) {
   .hot-list-container {
-    max-width: 100% !important;
-    padding: 0 4px !important;
+    padding: 0 8px;
   }
 
-  .header .title {
-    font-size: 2em !important;
+  .header {
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .title {
+    font-size: 2em;
   }
 
   .subtitle {
-    font-size: 1em !important;
+    font-size: 1em;
   }
 
-  .tab-label {
-    font-size: 0.95em !important;
-    gap: 4px !important;
-  }
-
-  :deep(.el-tabs__header) {
-    margin: 0 0 4px 0 !important;
-  }
-
-  :deep(.el-tabs__item) {
-    height: 32px !important;
-    line-height: 32px !important;
-    font-size: 13px !important;
-    padding: 0 6px !important;
+  .tab-pages {
+    padding: 12px;
+    gap: 12px;
   }
 
   .tab-page {
-    width: 85vw !important;
-    max-width: 85vw !important;
-    margin: 0 auto !important;
-    height: 600px !important;
-    overflow-y: auto !important;
+    width: 100%;
+    max-width: 100%;
+    height: 480px;
   }
 
   .back-top-btn {
@@ -541,20 +692,20 @@ function scrollToTop() {
   color: #222;
   font-size: 1.1em;
   font-weight: 500;
+  flex-shrink: 0;
 }
 
 .hitokoto {
   text-align: center;
-  color: #888;
+  color: #606266;
   font-style: italic;
-  font-size: 1.08em;
-  margin: 10px 0 0 0;
-  letter-spacing: 1px;
+  font-size: 1em;
+  margin: 12px 0 0 0;
+  letter-spacing: 0.5px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 2px;
-  min-height: 28px;
 }
 .hitokoto-text {
   max-width: 600px;
@@ -564,8 +715,8 @@ function scrollToTop() {
   white-space: nowrap;
 }
 .quote-mark {
-  font-size: 1.3em;
-  color: #b0b0b0;
+  font-size: 1.2em;
+  color: #909399;
   font-family: serif;
   font-style: normal;
 }
@@ -639,5 +790,37 @@ function scrollToTop() {
     width: 22px;
     height: 22px;
   }
+}
+
+.card-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-refresh-btn {
+  width: 24px !important;
+  height: 24px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  color: #909399 !important;
+  transition: all 0.3s ease;
+}
+
+.card-refresh-btn:hover {
+  transform: rotate(180deg);
+  color: #409EFF !important;
+}
+
+.card-refresh-btn :deep(.el-icon) {
+  font-size: 16px;
+}
+
+.update-time-info {
+  margin-left: 0;
+  padding-left: 12px;
+  border-left: 1px solid #eee;
 }
 </style> 
