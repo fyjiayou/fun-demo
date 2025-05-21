@@ -1,5 +1,13 @@
 @import './base.css';
 
+/* 去除移动端点击高亮 */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 #app {
   max-width: 1280px;
   margin: 0 auto;
