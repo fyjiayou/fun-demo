@@ -1,17 +1,25 @@
 <template>
   <div class="hot-list-container">
     <div class="header">
-      <h1 class="title">实时热搜榜</h1>
-      <div class="hitokoto" v-if="hitokoto">
-        <span class="quote-mark">"</span>
-        <span class="hitokoto-text">{{ hitokoto }}</span>
-        <span class="quote-mark">"</span>
+      <div class="header-left">
+        <img src="/logo.svg" class="logo" alt="Logo" />
+        <div class="logo-text">
+          <div class="main-title">趣热搜</div>
+          <div class="sub-title">动态掌握热搜数据，发现新鲜事</div>
+        </div>
       </div>
-      <div class="update-info">
+      <div class="header-center">
+        <div class="hitokoto" v-if="hitokoto">
+          <span class="quote-mark">"</span>
+          <span class="hitokoto-text">{{ hitokoto }}</span>
+          <span class="quote-mark">"</span>
+        </div>
         <div class="update-time">
           <i class="el-icon-time"></i>
           <span>数据更新时间：{{ lastUpdateTime }}</span>
         </div>
+      </div>
+      <div class="header-right">
         <el-button 
           type="primary" 
           :icon="Refresh" 
@@ -382,39 +390,110 @@ const formatUpdateTime = (updateTime) => {
   border-radius: 12px;
   box-shadow: var(--card-shadow);
   color: var(--text-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
 }
 
-.title {
-  font-size: 2.8em;
-  margin: 0;
-  background: linear-gradient(45deg, #2c3e50, #3498db);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 25%;
+}
+
+.header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 50%;
+}
+
+.header-right {
+  display: flex;
+  align-items: flex-start;
+  width: 25%;
+  justify-content: flex-end;
+}
+
+.logo {
+  height: 48px;
+  width: auto;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.main-title {
+  font-size: 1.8em;
   font-weight: 700;
-  letter-spacing: 2px;
+  color: var(--text-color);
+  line-height: 1.2;
 }
 
-.subtitle {
+.sub-title {
+  font-size: 0.9em;
   color: #666;
-  margin: 12px 0 0;
-  font-size: 1.2em;
-  letter-spacing: 1px;
-  font-weight: 500;
+  line-height: 1.4;
+}
+
+.hitokoto {
+  text-align: center;
+  color: #606266;
+  font-style: italic;
+  font-size: 1em;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.update-time {
+  color: #666;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.update-time i {
+  font-size: 1.1em;
+}
+
+.refresh-btn {
+  background: #3498db;
+  border-color: #3498db;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+  background: #2980b9;
+  border-color: #2980b9;
+  transform: rotate(180deg);
 }
 
 .tab-pages {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  justify-content: center;
+  justify-content: space-around;
   width: 100%;
-  padding: 20px;
+  padding: 0;
   background: transparent;
 }
 
 .tab-page {
-  width: 380px;
-  max-width: 380px;
+  width: 400px;
+  max-width: 400px;
   height: 480px;
   background: var(--card-bg);
   border-radius: 12px;
@@ -591,14 +670,31 @@ const formatUpdateTime = (updateTime) => {
     padding: 0 8px;
   }
   .header {
+    flex-direction: column;
+    gap: 16px;
     padding: 16px;
-    margin-bottom: 20px;
   }
-  .title {
-    font-size: 2em;
+  .header-left {
+    width: 100%;
+    justify-content: center;
   }
-  .subtitle {
-    font-size: 1em;
+  .header-center {
+    position: static;
+    transform: none;
+    width: 100%;
+    margin: 8px 0;
+  }
+  .header-right {
+    width: 100%;
+    justify-content: center;
+  }
+  .hitokoto {
+    width: 100%;
+    margin: 8px 0;
+  }
+  .update-time {
+    width: 100%;
+    justify-content: center;
   }
   .tab-pages {
     padding: 12px;
@@ -610,42 +706,6 @@ const formatUpdateTime = (updateTime) => {
     height: 480px;
   }
 }
-
-.update-info {
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.update-time {
-  color: #666;
-  font-size: 0.9em;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.update-time i {
-  font-size: 1.1em;
-}
-
-.refresh-btn {
-  background: #3498db;
-  border-color: #3498db;
-  transition: all 0.3s ease;
-}
-
-.refresh-btn:hover {
-  background: #2980b9;
-  border-color: #2980b9;
-  transform: rotate(180deg);
-}
-
-/* .today-history-card {
-  padding: 0;
-} */
 
 .jin-icon {
   display: inline-block;
@@ -668,25 +728,6 @@ const formatUpdateTime = (updateTime) => {
   flex-shrink: 0;
 }
 
-.hitokoto {
-  text-align: center;
-  color: #606266;
-  font-style: italic;
-  font-size: 1em;
-  margin: 12px 0 0 0;
-  letter-spacing: 0.5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-}
-.hitokoto-text {
-  max-width: 600px;
-  display: inline-block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 .quote-mark {
   font-size: 1.2em;
   color: #909399;
