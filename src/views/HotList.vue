@@ -21,7 +21,6 @@
       </div>
       <div class="header-right">
         <button
-          v-if="showResetOrder"
           class="reset-order-btn header-reset-btn icon-btn"
           @click="resetCardOrder"
           title="默认排序"
@@ -631,49 +630,53 @@ function resetCardOrder() {
 }
 
 .hot-list-container {
-  max-width: 1700px;
+  max-width: 1300px;
   margin: 20px auto;
   padding: 0 20px;
   min-height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
+  align-items: center;
   background: var(--bg-color);
   color: var(--text-color);
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .header {
-  text-align: center;
-  margin-bottom: 30px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+  max-width: 1300px;
+  margin: 20px auto 30px auto;
   padding: 20px;
   background: var(--main-bg);
   border-radius: 12px;
   box-shadow: var(--card-shadow);
   color: var(--text-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: 32px;
+  text-align: center;
   position: relative;
 }
 
 .header-left {
+  justify-self: start;
   display: flex;
   align-items: center;
-  gap: 16px;
-  width: 25%;
+  gap: 12px;
 }
 
 .header-center {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
+  justify-self: center;
   flex-direction: column;
   align-items: center;
+  display: flex;
   gap: 12px;
-  width: 50%;
 }
 
 .header-right {
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -747,7 +750,7 @@ function resetCardOrder() {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  justify-content: flex-start;
+  justify-content: center;
   width: 100%;
   padding: 0;
   background: transparent;
@@ -927,45 +930,18 @@ function resetCardOrder() {
   border-color: #ff5252;
 }
 
-@media (max-width: 900px) {
-  .hot-list-container {
-    padding: 0 8px;
-  }
+@media (max-width: 1400px) {
+  .hot-list-container,
   .header {
-    flex-direction: column;
-    gap: 16px;
-    padding: 16px;
+    max-width: 1000px;
   }
-  .header-left {
-    width: 100%;
-    justify-content: center;
-  }
-  .header-center {
-    position: static;
-    transform: none;
-    width: 100%;
-    margin: 8px 0;
-  }
-  .header-right {
-    width: 100%;
-    justify-content: center;
-  }
-  .hitokoto {
-    width: 100%;
-    margin: 8px 0;
-  }
-  .update-time {
-    width: 100%;
-    justify-content: center;
-  }
-  .tab-pages {
-    padding: 12px;
-    gap: 12px;
-  }
-  .tab-page {
-    width: 100%;
+}
+@media (max-width: 1100px) {
+  .hot-list-container,
+  .header {
     max-width: 100%;
-    height: 480px;
+    padding-left: 8px;
+    padding-right: 8px;
   }
 }
 
@@ -1056,6 +1032,14 @@ function resetCardOrder() {
   display: block;
 }
 @media (max-width: 900px) {
+  .header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    justify-content: center;
+    align-items: center;
+  }
   .back-top-btn {
     right: 18px;
     bottom: 32px;
