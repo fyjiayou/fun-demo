@@ -15,7 +15,8 @@
     "element-plus": "^2.9.10",
     "pinia": "^3.0.1",
     "vue": "^3.4.21",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.3",

@@ -20,11 +20,22 @@
         </div>
       </div>
       <div class="header-right">
+        <button
+          v-if="showResetOrder"
+          class="reset-order-btn header-reset-btn icon-btn"
+          @click="resetCardOrder"
+          title="默认排序"
+          aria-label="默认排序"
+        >
+          <svg t="1747895427688" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11627" width="20" height="20"><path d="M432 176.085V871.98a8.021 8.021 0 0 1-8.021 8.021h-59.99a8.021 8.021 0 0 1-7.978-8.021V266.837L172.97 411.136A8.064 8.064 0 0 1 160 404.864v-72.533c0-4.907 2.219-9.472 6.101-12.587l214.102-168.79A32 32 0 0 1 432 176.129z m235.99-24.106v605.226l183.04-144.298a8.064 8.064 0 0 1 12.97 6.272v72.533a16 16 0 0 1-6.101 12.587L643.797 873.088A32 32 0 0 1 592 848V151.979c0-4.395 3.584-7.979 7.979-7.979h60.032c4.394 0 7.978 3.584 7.978 7.979z" p-id="11628" fill="currentColor"></path></svg>
+        </button>
         <el-button 
           type="primary" 
           :icon="Refresh" 
           circle 
           size="default"
+          title="刷新页面"
+          aria-label="刷新页面"
           class="refresh-btn"
           @click="refreshCurrentTab" 
         />
@@ -61,58 +72,77 @@
       </div>
     </div>
     <!-- 内容区 -->
-    <div class="tab-pages">
-      <div class="tab-page" v-for="card in cards" :key="card.platform">
-        <div class="tab-page-header">
-          <template v-if="card.platform === 'todayInHistory'">
-            <img src="/today.svg" class="tab-page-logo" alt="今" />
-          </template>
-          <template v-else-if="card.platform === 'sixtySeconds'">
-            <img src="/world.svg" class="tab-page-logo" alt="60秒" />
-          </template>
-          <template v-else-if="card.platform === 'entertainment'">
-            <img src="/le.svg" class="tab-page-logo" alt="乐" />
-          </template>
-          <img v-else :src="card.icon" class="tab-page-logo" :alt="card.title" />
-          <span class="tab-page-title">{{ card.title }}</span>
-          <template v-if="card.platform === 'todayInHistory'">
-            <span class="today-date-right">
-              {{ todayInHistoryData?.type || '' }}
-            </span>
-          </template>
-          <template v-else-if="['weibo', 'bilibili', 'zhihu', 'douyin', 'toutiao'].includes(card.platform)">
-            <div class="card-header-actions">
-              <el-button
-                type="primary"
-                :icon="Refresh"
-                circle
-                size="small"
-                class="card-refresh-btn"
-                @click="refreshCard(card.platform)"
-              />
-              <template v-if="card.list.value.list && card.list.value.list.length > 0">
-                <div class="update-time-info">
-                  <i class="el-icon-time"></i>
-                  {{ card.list.value.updateTime ? formatUpdateTime(card.list.value.updateTime) : '未知' }}更新
-                </div>
-              </template>
-              <template v-else>
-                <div class="card-failed-badge"></div>
-              </template>
-            </div>
-          </template>
+    <draggable
+      v-model="cards"
+      item-key="platform"
+      class="tab-pages"
+      :animation="120"
+      :delay="80"
+      :touchStartThreshold="5"
+      :ghost-class="'tab-page-ghost'"
+      :chosen-class="'tab-page-chosen'"
+      :drag-class="'tab-page-drag'"
+      :force-fallback="true"
+    >
+      <template #item="{element: card}">
+        <div class="tab-page">
+          <div class="tab-page-header">
+            <template v-if="card.platform === 'todayInHistory'">
+              <img src="/today.svg" class="tab-page-logo" alt="今" />
+            </template>
+            <template v-else-if="card.platform === 'sixtySeconds'">
+              <img src="/world.svg" class="tab-page-logo" alt="60秒" />
+            </template>
+            <template v-else-if="card.platform === 'entertainment'">
+              <img src="/le.svg" class="tab-page-logo" alt="乐" />
+            </template>
+            <img v-else :src="card.icon" class="tab-page-logo" :alt="card.title" />
+            <span class="tab-page-title">{{ card.title }}</span>
+            <template v-if="card.platform === 'todayInHistory'">
+              <span class="today-date-right">
+                {{ todayInHistoryData?.type || '' }}
+              </span>
+            </template>
+            <template v-else-if="['weibo', 'bilibili', 'zhihu', 'douyin', 'toutiao'].includes(card.platform)">
+              <div class="card-header-actions">
+                <el-button
+                  type="primary"
+                  :icon="Refresh"
+                  circle
+                  size="small"
+                  class="card-refresh-btn"
+                  @click="refreshCard(card.platform)"
+                />
+                <template v-if="getListByPlatform(card.platform) && getListByPlatform(card.platform).length > 0">
+                  <div class="update-time-info">
+                    <i class="el-icon-time"></i>
+                    {{ getUpdateTimeByPlatform(card.platform) ? formatUpdateTime(getUpdateTimeByPlatform(card.platform)) : '未知' }}更新
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="card-failed-badge"></div>
+                </template>
+              </div>
+            </template>
+          </div>
+          <div class="tab-page-content">
+            <TodayInHistory v-if="card.platform === 'todayInHistory'" :data="todayInHistoryData" />
+            <SixtySeconds v-else-if="card.platform === 'sixtySeconds'" :data="sixtySecondsData" />
+            <component 
+              v-else-if="card.component" 
+              :is="card.component" 
+              :list="getListByPlatform(card.platform)" 
+              :platform="card.platform"
+              :is-mobile="isMobile"
+            />
+          </div>
         </div>
-        <div class="tab-page-content">
-          <TodayInHistory v-if="card.platform === 'todayInHistory'" :data="todayInHistoryData" />
-          <SixtySeconds v-else-if="card.platform === 'sixtySeconds'" :data="sixtySecondsData" />
-          <component 
-            v-else-if="card.component" 
-            :is="card.component" 
-            :list="card.list?.value?.list" 
-            :platform="card.platform"
-            :is-mobile="isMobile"
-          />
-        </div>
+      </template>
+    </draggable>
+    <div class="drag-tip-bar">
+      <div class="drag-tip">
+        <svg class="drag-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="7" width="16" height="2" rx="1" fill="#bbb"/><rect x="4" y="11" width="16" height="2" rx="1" fill="#bbb"/><rect x="4" y="15" width="16" height="2" rx="1" fill="#bbb"/></svg>
+        可长按卡片拖拽排序
       </div>
     </div>
     <template v-if="showBackTop">
@@ -121,10 +151,13 @@
       </button>
     </template>
   </div>
+  <footer class="icp-footer">
+    <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener" class="icp-link">鄂ICP备2025116821号</a>
+  </footer>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { Refresh, Sunny, Moon } from '@element-plus/icons-vue'
 import HotListItem from '../components/HotListItem.vue'
 import SixtySeconds from '../components/SixtySeconds.vue'
@@ -132,6 +165,7 @@ import TodayInHistory from '../components/TodayInHistory.vue'
 import EntertainmentCard from '../components/EntertainmentCard.vue'
 import { getBilibiliHot, getWeiboHot, getZhihuHot, getDouyinHot, getToutiaoHot, getSixtySeconds, getTodayInHistory } from '../api/hotList'
 import { ElMessage } from 'element-plus'
+import draggable from 'vuedraggable'
 
 const loading = ref(false)
 const bilibiliList = ref({
@@ -168,6 +202,30 @@ const isMobile = ref(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera M
 const isDarkMode = ref(false)
 
 let timeUpdateInterval
+
+function getListByPlatform(platform) {
+  switch (platform) {
+    case 'weibo': return weiboList.value.list
+    case 'toutiao': return toutiaoList.value.list
+    case 'zhihu': return zhihuList.value.list
+    case 'douyin': return douyinList.value.list
+    case 'bilibili': return bilibiliList.value.list
+    case 'sixtySeconds': return sixtySecondsData.value?.list
+    case 'todayInHistory': return todayInHistoryData.value?.list
+    default: return []
+  }
+}
+
+function getUpdateTimeByPlatform(platform) {
+  switch (platform) {
+    case 'weibo': return weiboList.value.updateTime
+    case 'toutiao': return toutiaoList.value.updateTime
+    case 'zhihu': return zhihuList.value.updateTime
+    case 'douyin': return douyinList.value.updateTime
+    case 'bilibili': return bilibiliList.value.updateTime
+    default: return null
+  }
+}
 
 const fetchHitokoto = async () => {
   try {
@@ -342,16 +400,17 @@ const refreshCard = async (platform) => {
   }
 }
 
-const cards = [
-  { platform: 'todayInHistory', title: '历史上的今天', icon: '', component: TodayInHistory, list: todayInHistoryData },
-  { platform: 'weibo', title: '微博热搜', icon: '/weibo.ico', component: HotListItem, list: weiboList },
-  { platform: 'toutiao', title: '头条热榜', icon: '/toutiao.ico', component: HotListItem, list: toutiaoList },
-  { platform: 'zhihu', title: '知乎热榜', icon: '/zhihu.ico', component: HotListItem, list: zhihuList },
-  { platform: 'douyin', title: '抖音热榜', icon: '/douyin.png', component: HotListItem, list: douyinList },
-  { platform: 'bilibili', title: '哔哩哔哩热榜', icon: '/bilibili.ico', component: HotListItem, list: bilibiliList },
-  { platform: 'sixtySeconds', title: '60秒读懂世界', icon: '/sixty.ico', component: SixtySeconds, list: sixtySecondsData },
-  { platform: 'entertainment', title: '消遣娱乐', icon: '🎲', component: EntertainmentCard, list: undefined },
+const defaultCards = [
+  { platform: 'todayInHistory', title: '历史上的今天', icon: '', component: TodayInHistory },
+  { platform: 'weibo', title: '微博热搜', icon: '/weibo.ico', component: HotListItem },
+  { platform: 'toutiao', title: '头条热榜', icon: '/toutiao.ico', component: HotListItem },
+  { platform: 'zhihu', title: '知乎热榜', icon: '/zhihu.ico', component: HotListItem },
+  { platform: 'douyin', title: '抖音热榜', icon: '/douyin.png', component: HotListItem },
+  { platform: 'bilibili', title: '哔哩哔哩热榜', icon: '/bilibili.ico', component: HotListItem },
+  { platform: 'sixtySeconds', title: '60秒读懂世界', icon: '/sixty.ico', component: SixtySeconds },
+  { platform: 'entertainment', title: '消遣娱乐', icon: '🎲', component: EntertainmentCard },
 ]
+const cards = ref([])
 
 const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value
@@ -360,6 +419,24 @@ const toggleDarkMode = () => {
 }
 
 onMounted(() => {
+  // 恢复卡片顺序
+  const savedOrder = localStorage.getItem('hotListCardOrder')
+  if (savedOrder) {
+    const orderArr = JSON.parse(savedOrder)
+    // 按保存顺序排序
+    cards.value = orderArr
+      .map(platform => defaultCards.find(card => card.platform === platform))
+      .filter(Boolean)
+    // 补充未保存的卡片（比如以后新增的）
+    defaultCards.forEach(card => {
+      if (!cards.value.find(c => c.platform === card.platform)) {
+        cards.value.push(card)
+      }
+    })
+  } else {
+    cards.value = [...defaultCards]
+  }
+
   // Check for saved dark mode preference
   const savedDarkMode = localStorage.getItem('darkMode')
   if (savedDarkMode !== null) {
@@ -423,6 +500,29 @@ const formatUpdateTime = (updateTime) => {
     hour: '2-digit',
     minute: '2-digit'
   })
+}
+
+// 拖拽后保存顺序
+watch(cards, (newCards) => {
+  const order = newCards.map(card => card.platform)
+  localStorage.setItem('hotListCardOrder', JSON.stringify(order))
+}, { deep: true })
+
+const showResetOrder = computed(() => {
+  const savedOrder = localStorage.getItem('hotListCardOrder')
+  if (!savedOrder) return false
+  try {
+    const arr = JSON.parse(savedOrder)
+    // 只要顺序和默认不一样就显示
+    return JSON.stringify(arr) !== JSON.stringify(defaultCards.map(c => c.platform))
+  } catch {
+    return false
+  }
+})
+
+function resetCardOrder() {
+  localStorage.removeItem('hotListCardOrder')
+  cards.value = [...defaultCards]
 }
 </script>
 
@@ -997,5 +1097,91 @@ const formatUpdateTime = (updateTime) => {
   0% { background: #444; }
   50% { background: #222; }
   100% { background: #444; }
+}
+
+.icp-footer {
+  width: 100%;
+  text-align: center;
+  margin: 32px 0 12px 0;
+  font-size: 14px;
+  color: #aaa;
+  letter-spacing: 1px;
+}
+
+.icp-link {
+  color: #aaa;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.icp-link:hover {
+  color: #222;
+  text-decoration: none;
+}
+
+/* 拖拽时的卡片样式优化 */
+.tab-page-ghost {
+  opacity: 0.5;
+  border: 2px dashed #409EFF;
+  background: #f0f7ff;
+}
+.tab-page-chosen {
+  border: 2px solid #409EFF !important;
+  box-shadow: 0 0 0 3px #409EFF, 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  transition: border 0.15s, box-shadow 0.15s;
+}
+.tab-page-drag {
+  opacity: 0.8;
+}
+
+.drag-tip-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 10px 0;
+  padding: 0 4px;
+}
+
+.drag-tip {
+  display: flex;
+  align-items: center;
+  color: #aaa;
+  font-size: 15px;
+  gap: 6px;
+  user-select: none;
+}
+
+.drag-icon {
+  vertical-align: middle;
+  opacity: 0.7;
+}
+
+.reset-order-btn.icon-btn {
+  margin-right: 10px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-color) !important;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.reset-order-btn.icon-btn:hover {
+  background: var(--card-bg) !important;
+  border-color: #409EFF !important;
+  color: #409EFF !important;
+}
+
+.reset-order-btn.icon-btn .icon {
+  width: 20px;
+  height: 20px;
+  display: block;
 }
 </style> 
