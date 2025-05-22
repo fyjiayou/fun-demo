@@ -139,12 +139,6 @@
         </div>
       </template>
     </draggable>
-    <div class="drag-tip-bar">
-      <div class="drag-tip">
-        <svg class="drag-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="7" width="16" height="2" rx="1" fill="#bbb"/><rect x="4" y="11" width="16" height="2" rx="1" fill="#bbb"/><rect x="4" y="15" width="16" height="2" rx="1" fill="#bbb"/></svg>
-        可长按卡片拖拽排序
-      </div>
-    </div>
     <template v-if="showBackTop">
       <button class="back-top-btn" @click="scrollToTop" aria-label="返回顶部">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" :stroke="backTopActive ? '#ff3b30' : '#222'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
@@ -152,6 +146,9 @@
     </template>
   </div>
   <footer class="icp-footer">
+    趣热搜 @ Copyright By fystart |
+    <a href="mailto:fystart@163.com" class="feedback-link">意见反馈</a>
+    <br/>
     <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener" class="icp-link">鄂ICP备2025116821号</a>
   </footer>
 </template>
@@ -1183,5 +1180,17 @@ function resetCardOrder() {
   width: 20px;
   height: 20px;
   display: block;
+}
+
+.feedback-link {
+  color: #aaa;
+  text-decoration: none;
+  margin: 0 4px;
+  transition: color 0.2s;
+}
+
+.feedback-link:hover {
+  color: #409EFF;
+  text-decoration: none;
 }
 </style> 
