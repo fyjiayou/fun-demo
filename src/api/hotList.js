@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // 创建axios实例
 const request = axios.create({
-  baseURL: 'http://47.107.68.132:6688/',
+  baseURL: '/api',
   timeout: 5000
 })
 
@@ -149,4 +149,4 @@ export const getSixtySeconds = async () => {
   const res = await fetch('https://60s-api.viki.moe/v2/60s')
   const json = await res.json()
   return json.data
-} 
+}

@@ -90,10 +90,15 @@
                 class="card-refresh-btn"
                 @click="refreshCard(card.platform)"
               />
-              <div class="update-time-info">
-                <i class="el-icon-time"></i>
-                {{ card.list.value.updateTime ? formatUpdateTime(card.list.value.updateTime) : '未知' }}
-              </div>
+              <template v-if="card.list.value.list && card.list.value.list.length > 0">
+                <div class="update-time-info">
+                  <i class="el-icon-time"></i>
+                  {{ card.list.value.updateTime ? formatUpdateTime(card.list.value.updateTime) : '未知' }}更新
+                </div>
+              </template>
+              <template v-else>
+                <div class="card-failed-badge"></div>
+              </template>
             </div>
           </template>
         </div>
@@ -258,51 +263,76 @@ const refreshCard = async (platform) => {
   loading.value = true
   try {
     switch (platform) {
-      case 'weibo':
+      case 'weibo': {
         const weiboData = await getWeiboHot()
         weiboList.value = weiboData
-        ElMessage({
-          message: '微博热搜刷新成功',
-          type: 'success',
-          duration: 1000
-        })
+        if (!weiboData.list || weiboData.list.length === 0) {
+          ElMessage.error('微博热搜刷新失败')
+        } else {
+          ElMessage({
+            message: '微博热搜刷新成功',
+            type: 'success',
+            duration: 1000
+          })
+        }
         break
-      case 'bilibili':
+      }
+      case 'bilibili': {
         const bilibiliData = await getBilibiliHot()
         bilibiliList.value = bilibiliData
-        ElMessage({
-          message: '哔哩哔哩热榜刷新成功',
-          type: 'success',
-          duration: 1000
-        })
+        if (!bilibiliData.list || bilibiliData.list.length === 0) {
+          ElMessage.error('哔哩哔哩热榜刷新失败')
+        } else {
+          ElMessage({
+            message: '哔哩哔哩热榜刷新成功',
+            type: 'success',
+            duration: 1000
+          })
+        }
         break
-      case 'zhihu':
+      }
+      case 'zhihu': {
         const zhihuData = await getZhihuHot()
         zhihuList.value = zhihuData
-        ElMessage({
-          message: '知乎热榜刷新成功',
-          type: 'success',
-          duration: 1000
-        })
+        if (!zhihuData.list || zhihuData.list.length === 0) {
+          ElMessage.error('知乎热榜刷新失败')
+        } else {
+          ElMessage({
+            message: '知乎热榜刷新成功',
+            type: 'success',
+            duration: 1000
+          })
+        }
         break
-      case 'douyin':
+      }
+      case 'douyin': {
         const douyinData = await getDouyinHot()
         douyinList.value = douyinData
-        ElMessage({
-          message: '抖音热榜刷新成功',
-          type: 'success',
-          duration: 1000
-        })
+        if (!douyinData.list || douyinData.list.length === 0) {
+          ElMessage.error('抖音热榜刷新失败')
+        } else {
+          ElMessage({
+            message: '抖音热榜刷新成功',
+            type: 'success',
+            duration: 1000
+          })
+        }
         break
-      case 'toutiao':
+      }
+      case 'toutiao': {
         const toutiaoData = await getToutiaoHot()
         toutiaoList.value = toutiaoData
-        ElMessage({
-          message: '头条热榜刷新成功',
-          type: 'success',
-          duration: 1000
-        })
+        if (!toutiaoData.list || toutiaoData.list.length === 0) {
+          ElMessage.error('头条热榜刷新失败')
+        } else {
+          ElMessage({
+            message: '头条热榜刷新成功',
+            type: 'success',
+            duration: 1000
+          })
+        }
         break
+      }
     }
   } catch (error) {
     console.error(`获取${platform}数据失败:`, error)
@@ -930,5 +960,42 @@ const formatUpdateTime = (updateTime) => {
 
 :deep(.el-button .el-icon) {
   font-size: 20px !important;
+}
+
+.card-failed-badge {
+  background: #dedede;
+  color: #444;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 0 22px;
+  margin-left: 10px;
+  box-shadow: 0 2px 8px rgba(160,160,160,0.08);
+  display: flex;
+  align-items: center;
+  height: 18px;
+  letter-spacing: 1px;
+  user-select: none;
+  border: 1px solid #d2d2d2;
+  transition: background 0.3s;
+  animation: failed-badge-flash 2s infinite alternate;
+  animation-timing-function: ease-in-out;
+}
+@keyframes failed-badge-flash {
+  0% { background: #dedede; }
+  50% { background: #eee; }
+  100% { background: #dedede; }
+}
+.dark-mode .card-failed-badge {
+  background: #444;
+  color: #ccc;
+  border: 1px solid #333;
+  animation: failed-badge-flash-dark 2s infinite alternate;
+  animation-timing-function: ease-in-out;
+}
+@keyframes failed-badge-flash-dark {
+  0% { background: #444; }
+  50% { background: #222; }
+  100% { background: #444; }
 }
 </style> 
