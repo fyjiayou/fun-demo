@@ -29,22 +29,22 @@
         >
           <svg t="1747895427688" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11627" width="20" height="20"><path d="M432 176.085V871.98a8.021 8.021 0 0 1-8.021 8.021h-59.99a8.021 8.021 0 0 1-7.978-8.021V266.837L172.97 411.136A8.064 8.064 0 0 1 160 404.864v-72.533c0-4.907 2.219-9.472 6.101-12.587l214.102-168.79A32 32 0 0 1 432 176.129z m235.99-24.106v605.226l183.04-144.298a8.064 8.064 0 0 1 12.97 6.272v72.533a16 16 0 0 1-6.101 12.587L643.797 873.088A32 32 0 0 1 592 848V151.979c0-4.395 3.584-7.979 7.979-7.979h60.032c4.394 0 7.978 3.584 7.978 7.979z" p-id="11628" fill="currentColor"></path></svg>
         </button>
-        <el-button 
-          type="primary" 
-          :icon="Refresh" 
-          circle 
+        <el-button
+          type="primary"
+          :icon="Refresh"
+          circle
           size="default"
           title="刷新页面"
           aria-label="刷新页面"
           class="refresh-btn"
-          @click="refreshCurrentTab" 
+          @click="refreshCurrentTab"
         />
         <button
-          type="primary" 
-          :icon="isDarkMode ? 'Sunny' : 'Moon'" 
+          type="primary"
+          :icon="isDarkMode ? 'Sunny' : 'Moon'"
           size="default"
           class="theme-toggle-btn"
-          @click="toggleDarkMode" 
+          @click="toggleDarkMode"
           :aria-label="isDarkMode ? '切换到浅色模式' : '切换到深色模式'"
           :title="isDarkMode ? '浅色模式' : '深色模式'"
         >
@@ -103,7 +103,7 @@
                 {{ todayInHistoryData?.type || '' }}
               </span>
             </template>
-            <template v-else-if="['weibo', 'bilibili', 'zhihu', 'douyin', 'toutiao'].includes(card.platform)">
+            <template v-else-if="['weibo', 'bilibili', 'zhihu', 'douyin', 'toutiao', 'baidu', 'weRead', 'jianshu'].includes(card.platform)">
               <div class="card-header-actions">
                 <el-button
                   type="primary"
@@ -128,10 +128,10 @@
           <div class="tab-page-content">
             <TodayInHistory v-if="card.platform === 'todayInHistory'" :data="todayInHistoryData" />
             <SixtySeconds v-else-if="card.platform === 'sixtySeconds'" :data="sixtySecondsData" />
-            <component 
-              v-else-if="card.component" 
-              :is="card.component" 
-              :list="getListByPlatform(card.platform)" 
+            <component
+              v-else-if="card.component"
+              :is="card.component"
+              :list="getListByPlatform(card.platform)"
               :platform="card.platform"
               :is-mobile="isMobile"
             />
@@ -155,14 +155,14 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
-import { Refresh, Sunny, Moon } from '@element-plus/icons-vue'
 import HotListItem from '../components/HotListItem.vue'
 import SixtySeconds from '../components/SixtySeconds.vue'
 import TodayInHistory from '../components/TodayInHistory.vue'
 import EntertainmentCard from '../components/EntertainmentCard.vue'
-import { getBilibiliHot, getWeiboHot, getZhihuHot, getDouyinHot, getToutiaoHot, getSixtySeconds, getTodayInHistory } from '../api/hotList'
+import { getBilibiliHot, getWeiboHot, getZhihuHot, getDouyinHot, getToutiaoHot, getSixtySeconds, getTodayInHistory, getBaiduHot, getWeReadHot, getJSHot } from '../api/hotList'
 import { ElMessage } from 'element-plus'
 import draggable from 'vuedraggable'
+import { Refresh } from '@element-plus/icons-vue'
 
 const loading = ref(false)
 const bilibiliList = ref({
@@ -185,6 +185,14 @@ const toutiaoList = ref({
   list: [],
   updateTime: null
 })
+const baiduList = ref({
+  list: [],
+  updateTime: null
+})
+const weReadList = ref({
+  list: [],
+  updateTime: null
+})
 const sixtySecondsData = ref(null)
 const todayInHistoryData = ref({
   type: '',
@@ -197,6 +205,10 @@ const backTopActive = ref(false)
 const currentTime = ref(new Date())
 const isMobile = ref(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
 const isDarkMode = ref(false)
+const jsHotList = ref({
+  list: [],
+  updateTime: null
+})
 
 let timeUpdateInterval
 
@@ -209,6 +221,9 @@ function getListByPlatform(platform) {
     case 'bilibili': return bilibiliList.value.list
     case 'sixtySeconds': return sixtySecondsData.value?.list
     case 'todayInHistory': return todayInHistoryData.value?.list
+    case 'baidu': return baiduList.value.list
+    case 'weRead': return weReadList.value.list
+    case 'jianshu': return jsHotList.value.list
     default: return []
   }
 }
@@ -220,6 +235,9 @@ function getUpdateTimeByPlatform(platform) {
     case 'zhihu': return zhihuList.value.updateTime
     case 'douyin': return douyinList.value.updateTime
     case 'bilibili': return bilibiliList.value.updateTime
+    case 'baidu': return baiduList.value.updateTime
+    case 'weRead': return weReadList.value.updateTime
+    case 'jianshu': return jsHotList.value.updateTime
     default: return null
   }
 }
@@ -268,6 +286,15 @@ const fetchWeiboHot = async () => {
   weiboList.value = data
 }
 
+const fetchBaiduHot = async () => {
+    const data = await getBaiduHot()
+    baiduList.value = data
+}
+const fetchWeReadHot = async () => {
+    const data = await getWeReadHot()
+    weReadList.value = data
+}
+
 const fetchZhihuHot = async () => {
   const data = await getZhihuHot()
   zhihuList.value = data
@@ -283,9 +310,14 @@ const fetchToutiaoHot = async () => {
   toutiaoList.value = data
 }
 
+const fetchJSHot = async () => {
+  const data = await getJSHot()
+  jsHotList.value = data
+}
+
 const refreshCurrentTab = async () => {
   if (loading.value) return
-  
+
   loading.value = true
   try {
     await Promise.all([
@@ -295,6 +327,9 @@ const refreshCurrentTab = async () => {
       fetchZhihuHot(),
       fetchDouyinHot(),
       fetchBilibiliHot(),
+      fetchBaiduHot(),
+      fetchWeReadHot(),
+      fetchJSHot(),
       fetchSixtySeconds(),
       fetchHitokoto()
     ])
@@ -314,7 +349,7 @@ const refreshCurrentTab = async () => {
 
 const refreshCard = async (platform) => {
   if (loading.value) return
-  
+
   loading.value = true
   try {
     switch (platform) {
@@ -388,6 +423,48 @@ const refreshCard = async (platform) => {
         }
         break
       }
+      case 'baidu': {
+        const baiduData = await getBaiduHot()
+        baiduList.value = baiduData
+        if (!baiduData.list || baiduData.list.length === 0) {
+          ElMessage.error('百度热榜刷新失败')
+        } else {
+          ElMessage({
+            message: '百度热榜刷新成功',
+            type: 'success',
+            duration: 1000
+          })
+        }
+        break
+      }
+      case 'weRead': {
+        const weReadData = await getWeReadHot()
+        weReadList.value = weReadData
+        if (!weReadData.list || weReadData.list.length === 0) {
+          ElMessage.error('微信阅读飙升榜刷新失败')
+        } else {
+          ElMessage({
+            message: '微信阅读飙升榜刷新成功',
+            type: 'success',
+            duration: 1000
+          })
+        }
+        break
+      }
+      case 'jianshu': {
+        const jsData = await getJSHot()
+        jsHotList.value = jsData
+        if (!jsData.list || jsData.list.length === 0) {
+          ElMessage.error('简书热门推荐刷新失败')
+        } else {
+          ElMessage({
+            message: '简书热门推荐刷新成功',
+            type: 'success',
+            duration: 1000
+          })
+        }
+        break
+      }
     }
   } catch (error) {
     console.error(`获取${platform}数据失败:`, error)
@@ -402,8 +479,11 @@ const defaultCards = [
   { platform: 'weibo', title: '微博热搜', icon: '/weibo.ico', component: HotListItem },
   { platform: 'toutiao', title: '头条热榜', icon: '/toutiao.ico', component: HotListItem },
   { platform: 'zhihu', title: '知乎热榜', icon: '/zhihu.ico', component: HotListItem },
+  { platform: 'baidu', title: '百度热榜', icon: '/baidu.ico', component: HotListItem },
   { platform: 'douyin', title: '抖音热榜', icon: '/douyin.png', component: HotListItem },
   { platform: 'bilibili', title: '哔哩哔哩热榜', icon: '/bilibili.ico', component: HotListItem },
+  { platform: 'weRead', title: '微信阅读飙升榜', icon: '/weRead.png', component: HotListItem },
+  { platform: 'jianshu', title: '简书热门推荐', icon: '/jian.ico', component: HotListItem },
   { platform: 'sixtySeconds', title: '60秒读懂世界', icon: '/sixty.ico', component: SixtySeconds },
   { platform: 'entertainment', title: '消遣娱乐', icon: '🎲', component: EntertainmentCard },
 ]
@@ -452,6 +532,9 @@ onMounted(() => {
   fetchZhihuHot()
   fetchDouyinHot()
   fetchBilibiliHot()
+  fetchBaiduHot()
+  fetchWeReadHot()
+  fetchJSHot()
   fetchSixtySeconds()
   fetchHitokoto()
 
@@ -473,24 +556,24 @@ function scrollToTop() {
 
 const formatUpdateTime = (updateTime) => {
   if (!updateTime) return '未知'
-  
+
   const now = currentTime.value
   const updateDate = new Date(updateTime)
-  
+
   if (isNaN(updateDate.getTime())) return '未知'
-  
+
   const diffMilliseconds = now - updateDate
   const diffMinutes = Math.floor(diffMilliseconds / (1000 * 60))
-  
+
   if (diffMinutes < 1) return '刚刚'
   if (diffMinutes < 60) return `${diffMinutes}分钟前`
-  
+
   const diffHours = Math.floor(diffMinutes / 60)
   if (diffHours < 24) return `${diffHours}小时前`
-  
+
   const diffDays = Math.floor(diffHours / 24)
   if (diffDays < 30) return `${diffDays}天前`
-  
+
   return updateDate.toLocaleString('zh-CN', {
     month: '2-digit',
     day: '2-digit',
@@ -664,7 +747,7 @@ function resetCardOrder() {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  justify-content: space-around;
+  justify-content: flex-start;
   width: 100%;
   padding: 0;
   background: transparent;
@@ -1193,4 +1276,4 @@ function resetCardOrder() {
   color: #409EFF;
   text-decoration: none;
 }
-</style> 
+</style>

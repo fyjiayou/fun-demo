@@ -3,6 +3,7 @@ import axios from 'axios'
 // 创建axios实例
 const request = axios.create({
   baseURL: '/api',
+  // baseURL: 'http://47.107.68.132:6688/',
   timeout: 5000
 })
 
@@ -142,6 +143,64 @@ export const getTodayInHistory = async () => {
   } catch (error) {
     console.error('获取历史上的今日失败:', error)
     return []
+  }
+}
+
+// 百度热搜
+export const getBaiduHot = async () => {
+  try {
+    const response = await request.get('/baidu?cache=true')
+    return {
+      list: response.data.data.map((item) => ({
+        title: item.title,
+        hot: item.hot,
+        url: item.url,
+        mobileUrl: item.mobileUrl
+      })),
+      updateTime: response.data.updateTime
+    }
+  } catch (error) {
+    console.error('获取百度热搜失败:', error)
+    return { list: [], updateTime: null }
+  }
+}
+
+// 微信阅读飙升榜
+export const getWeReadHot = async () => {
+  try {
+    const response = await request.get('/weread?cache=true')
+    return {
+      list: response.data.data.map((item) => ({
+        title: item.title,
+        hot: item.hot,
+        url: item.url,
+        mobileUrl: item.mobileUrl,
+        cover: item.cover,
+        author: item.author
+      })),
+      updateTime: response.data.updateTime
+    }
+  } catch (error) {
+    console.error('获取微信阅读飙升榜失败:', error)
+    return { list: [], updateTime: null }
+  }
+}
+
+export const getJSHot = async () => {
+  try {
+    const response = await request.get('/jianshu?cache=true')
+    return {
+      list: response.data.data.map((item) => ({
+        title: item.title,
+        url: item.url,
+        mobileUrl: item.mobileUrl,
+        author: item.author
+      })),
+      updateTime: response.data.updateTime
+    }
+  } catch (error) {
+    console.error('获取简书热门推荐失败:', error)
+    return { list: [], updateTime: null }
   }
 }
 
