@@ -750,7 +750,7 @@ function resetCardOrder() {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
   padding: 0;
   background: transparent;
@@ -758,7 +758,8 @@ function resetCardOrder() {
 
 .tab-page {
   width: 400px;
-  max-width: 400px;
+  max-width: 100%;
+  min-width: 300px;
   height: 480px;
   background: var(--card-bg);
   border-radius: 12px;
@@ -931,17 +932,17 @@ function resetCardOrder() {
 }
 
 @media (max-width: 1400px) {
-  .hot-list-container,
-  .header {
-    max-width: 1000px;
+  .tab-page {
+    width: 48%;
+    min-width: 300px;
+    max-width: 100%;
   }
 }
-@media (max-width: 1100px) {
-  .hot-list-container,
-  .header {
+@media (max-width: 900px) {
+  .tab-page {
+    width: 100%;
+    min-width: 0;
     max-width: 100%;
-    padding-left: 8px;
-    padding-right: 8px;
   }
 }
 
